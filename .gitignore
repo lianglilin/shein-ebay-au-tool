@@ -1,0 +1,48 @@
+# 抓取用的 Chrome 档案（体积大、含登录态，绝对不要传上去）
+_chrome_profile/
+_chrome_profile_旧_*/
+_chrome_*profile*/
+_edge_profile/
+_edge_profile_旧_*/
+_edge_profile_incomplete_*/
+_*验证/
+__pycache__/
+*.pyc
+.idea/
+.vscode/
+.write_test
+_screen_*.png
+_*.tmp
+.env
+.env.*
+*.pem
+*.key
+*.p12
+*.pfx
+credentials*.json
+secrets*.json
+Cookies*
+
+# 跑出来的结果
+选品汇总*.xlsx
+*_结果_*.xlsx
+~$*.xlsx
+_out*/
+_来源备份/
+验证*/
+测试*/
+_book_test/
+_doc_verify/
+_pages/
+*.log
+
+# 工具自己的全局记录（每个人本地生成）
+_已选过记录.txt
+.选品工具.lock
+
+# 打包中间产物
+build/
+dist/
+_build/
+_dist/
+*.spec

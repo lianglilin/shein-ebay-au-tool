@@ -1,0 +1,3 @@
+# 抓取依赖；WebP 预览转 JPG 需要 Pillow
+websocket-client>=1.6
+Pillow>=10.0

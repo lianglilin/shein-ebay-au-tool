@@ -1,0 +1,73 @@
+# 打 tag（v1.0.0 这种）就自动出三平台安装包，挂到 Release 上
+# 也可以在 Actions 页面手动点「Run workflow」先试跑
+name: build
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            label: Windows-x64
+          - os: macos-14          # Apple 芯片（M 系列）
+            label: macOS-arm64
+          - os: macos-13          # Intel 芯片
+            label: macOS-x86_64
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: 装依赖
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pyinstaller -r requirements.txt
+
+      - name: 打包
+        run: >
+          python -m PyInstaller --noconfirm --onefile --windowed
+          --name "SHEIN选品工具" --hidden-import websocket
+          --hidden-import PIL.Image --hidden-import PIL.ImageOps
+          --exclude-module openpyxl --exclude-module numpy
+          --exclude-module pandas --exclude-module matplotlib
+          ebay_tool.py
+
+      - name: 压缩（Windows）
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Copy-Item 使用说明_同事版.txt dist\ -Force
+          Compress-Archive -Path "dist\*" -DestinationPath "SHEIN选品工具-${{ matrix.label }}.zip" -Force
+
+      - name: 压缩（macOS）
+        if: runner.os == 'macOS'
+        run: |
+          cp 使用说明_同事版.txt dist/
+          cd dist
+          zip -qry "../SHEIN选品工具-${{ matrix.label }}.zip" ./*
+
+      - name: 上传构建产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: SHEIN选品工具-${{ matrix.label }}
+          path: SHEIN选品工具-${{ matrix.label }}.zip
+
+      - name: 挂到 Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: SHEIN选品工具-${{ matrix.label }}.zip
